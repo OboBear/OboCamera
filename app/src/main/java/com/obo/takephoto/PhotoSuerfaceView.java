@@ -2,6 +2,7 @@ package com.obo.takephoto;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Environment;
@@ -17,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,6 +54,7 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
         params.setJpegQuality(100);  // 设置照片的质量
         params.setPictureSize(1024, 768);
         params.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         Camera.Parameters mParameters = camera.getParameters();
         List<Camera.Size> size = mParameters.getSupportedPictureSizes();
         if (size.size() > 0) {
@@ -164,9 +167,39 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
             case MotionEvent.ACTION_UP:
                 lastDiff = 0;
                 Log.i(TAG, "MotionEvent ACTION_UP");
+
+                //设置焦点的区域
+                Camera.Parameters params = camera.getParameters();
+                List<Camera.Area> focusArea = new ArrayList< Camera.Area>();
+                int rateWidth = -1000 + (int) (e.getY()/params.getPreviewSize().width*2000);
+                int rateHeight = -1000 + (int) (e.getX()/params.getPreviewSize().height*2000);
+                Rect areaRect = new Rect(new Rect(rateWidth-10,rateHeight-10,rateWidth+10,rateHeight+10));
+                if(areaRect.left <= -1000)
+                {
+                    areaRect.left = -999;
+                }
+                if(areaRect.top <= -1000)
+                {
+                    areaRect.top = -999;
+                }
+                if(areaRect.right >= 1000)
+                {
+                    areaRect.right = 999;
+                }
+                if(areaRect.bottom >= 1000)
+                {
+                    areaRect.bottom = 999;
+                }
+                Log.i(TAG,"previewSize:"+areaRect.left+":"+areaRect.top+":"+areaRect.right+":"+areaRect.bottom);
+
+                focusArea.add(new Camera.Area(areaRect,200));
+                params.setFocusAreas(focusArea);
+                camera.setParameters(params);
+
                 camera.autoFocus(new Camera.AutoFocusCallback() {
                     @Override
-                    public void onAutoFocus(boolean success, Camera camera) {}
+                    public void onAutoFocus(boolean success, Camera camera) {
+                    }
                 });
                 break;
         }
