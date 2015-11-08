@@ -2,9 +2,11 @@ package com.obo.takephoto;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -12,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,6 +33,8 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
     Context context;
     File ef = Environment.getExternalStorageDirectory();
     Camera camera;
+
+    boolean showFocus = false;
 
     public PhotoSuerfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -142,6 +145,7 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
     public boolean onTouchEvent(MotionEvent e) {
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                showFocus = true;
                 Log.i(TAG, "MotionEvent ACTION_DOWN");
                 return true;
             case MotionEvent.ACTION_MOVE: {
@@ -159,8 +163,15 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
                         cameraParameters.setZoom(zoom);
                         camera.setParameters(cameraParameters);
                     }
+                    if (zoom!=0)
+                    {
+                        context.sendBroadcast(new Intent(AnimationView.ACTION_SCALE_ON));
+                        showFocus = false;
+                    }
                 }
                 lastDiff = currentDiff;
+
+
             }
             break;
 
@@ -190,9 +201,9 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
                 {
                     areaRect.bottom = 999;
                 }
-                Log.i(TAG,"previewSize:"+areaRect.left+":"+areaRect.top+":"+areaRect.right+":"+areaRect.bottom);
+                Log.i(TAG, "previewSize:" + areaRect.left + ":" + areaRect.top + ":" + areaRect.right + ":" + areaRect.bottom);
 
-                focusArea.add(new Camera.Area(areaRect,200));
+                focusArea.add(new Camera.Area(areaRect, 200));
                 params.setFocusAreas(focusArea);
                 camera.setParameters(params);
 
@@ -201,6 +212,25 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
                     public void onAutoFocus(boolean success, Camera camera) {
                     }
                 });
+
+
+                Intent intent = new Intent();
+                intent.setAction(AnimationView.ACTION_FOCUS);
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("point", new PointF(e.getX(), e.getY()));
+                intent.putExtra("data", bundle);
+
+                if (showFocus)
+                {
+                    context.sendBroadcast(intent);
+                }
+                else
+                {
+                    context.sendBroadcast(new Intent(AnimationView.ACTION_SCALE_OFF));
+                }
+
+                showFocus = false;
                 break;
         }
         return true;
@@ -209,6 +239,5 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
     double getDistance(float difX, float difY) {
         return Math.sqrt(difX * difX + difY * difY);
     }
-
 
 }

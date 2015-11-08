@@ -10,6 +10,10 @@
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true" />
 
+    <com.obo.takephoto.AnimationView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -105,7 +109,6 @@
             android:onClick="onClick"
             android:text="0:0"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
 
     </RelativeLayout>
 
