@@ -128,6 +128,26 @@ public class TakePhotoActivity extends AppCompatActivity {
                     time_text.setText(getNumberString(choosedHour) + ":" + getNumberString(choosedMinute) + ":" + getNumberString(choosedSecond));
                 } else {
                     pick_layout.setTranslationY(0);
+                    int hh=currentHour,mm=currentMinute,ss=currentSecond;
+                    ss+=30;
+                    if (ss>=60)
+                    {
+                        ss-=60;
+                        mm++;
+                    }
+                    if (mm>=60)
+                    {
+                        mm-=60;
+                        hh++;
+                    }
+                    if (hh>=12)
+                    {
+                        hh-=12;
+                    }
+                    hourPicker.setValue(hh);
+                    minutePicker.setValue(mm);
+                    secondPicker.setValue(ss);
+
                 }
 
                 break;

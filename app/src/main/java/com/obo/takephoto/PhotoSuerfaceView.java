@@ -2,6 +2,13 @@ package com.obo.takephoto;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -19,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,8 +65,11 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
         Log.i("i", params.flatten());
         params.setJpegQuality(100);  // 设置照片的质量
         params.setPictureSize(1024, 768);
+        params.setRotation(90);
         params.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
         params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+//        params.setSceneMode(Camera.Parameters.SCENE_MODE_NIGHT);
+//        params.setColorEffect(Camera.Parameters.EFFECT_NEGATIVE);
         Camera.Parameters mParameters = camera.getParameters();
         List<Camera.Size> size = mParameters.getSupportedPictureSizes();
         if (size.size() > 0) {
@@ -96,7 +107,6 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
         camera.takePicture(shutterCallback, rawCallback, pictureCallback);
     }
 
-
     Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
         @Override
         public void onShutter() {
@@ -112,34 +122,66 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
     Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
             FileOutputStream outSteam = null;
+
+            File file = new File(ef.getAbsolutePath() + "/" + "3DPhotos");
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            String times = format.format((new Date()));
+//                outSteam = new FileOutputStream(file.getAbsolutePath() + "/" + times + ".jpg");
+//                outSteam.write(data);
+//                outSteam.close();
+
+
+            Bitmap bmp = BitmapFactory.decodeByteArray(data,0,data.length);
+            ColorMatrix cm = new ColorMatrix();
+            float brightness = -20;  //亮度
+            float contrast = 2;        //对比度
+            cm.set(new float[] {
+                    contrast, 0, 0, 0, brightness,
+                    0, contrast, 0, 0, brightness,
+                    0, 0, contrast, 0, brightness,
+                    0, 0, 0, contrast, 0
+            });
+            Paint paint = new Paint();
+            paint.setColorFilter(new ColorMatrixColorFilter(cm));
+            //显示图片
+            Matrix matrix = new Matrix();
+            Bitmap createBmp = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
+            Canvas canvas = new Canvas(createBmp);
+            canvas.drawBitmap(bmp, matrix, paint);
+
+
+            FileOutputStream fOut = null;
             try {
-
-                File file = new File(ef.getAbsolutePath() + "/" + "3DPhotos");
-                if (!file.exists()) {
-                    file.mkdirs();
-                }
-                SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-                String times = format.format((new Date()));
-                outSteam = new FileOutputStream(file.getAbsolutePath() + "/" + times + ".jpg");
-                outSteam.write(data);
-                outSteam.close();
-                camera.startPreview();
-
-
-                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                Uri uri = Uri.fromFile(file);
-                intent.setData(uri);
-                context.sendBroadcast(intent);
-
-                Toast.makeText(context, "照片存到:" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-
+                fOut = new FileOutputStream(new File(file.getAbsolutePath() + "/" + times + ".jpg"));
             } catch (FileNotFoundException e) {
-                Log.d("Camera", "row");
-
-            } catch (IOException e) {
-
                 e.printStackTrace();
             }
+            createBmp.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            try {
+                fOut.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                fOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            camera.startPreview();
+
+
+            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri uri = Uri.fromFile(file);
+            intent.setData(uri);
+
+            context.sendBroadcast(intent);
+            Toast.makeText(context, "照片存到:" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+
         }
     };
 
