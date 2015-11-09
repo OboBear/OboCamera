@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -80,7 +81,8 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
@@ -97,7 +99,8 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
 
     Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
         @Override
-        public void onShutter() {}
+        public void onShutter() {
+        }
     };
     private Camera.PictureCallback rawCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] _data, Camera _camera) {
@@ -128,7 +131,7 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
                 intent.setData(uri);
                 context.sendBroadcast(intent);
 
-                Toast.makeText(context, "照片存到:"+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "照片存到:" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
 
             } catch (FileNotFoundException e) {
                 Log.d("Camera", "row");
@@ -163,14 +166,12 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
                         cameraParameters.setZoom(zoom);
                         camera.setParameters(cameraParameters);
                     }
-                    if (zoom!=0)
-                    {
+                    if (zoom != 0) {
                         context.sendBroadcast(new Intent(AnimationView.ACTION_SCALE_ON));
                         showFocus = false;
                     }
                 }
                 lastDiff = currentDiff;
-
 
             }
             break;
@@ -180,39 +181,34 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
                 Log.i(TAG, "MotionEvent ACTION_UP");
 
                 //设置焦点的区域
-                Camera.Parameters params = camera.getParameters();
-                List<Camera.Area> focusArea = new ArrayList< Camera.Area>();
-                int rateWidth = -1000 + (int) (e.getY()/params.getPreviewSize().width*2000);
-                int rateHeight = -1000 + (int) (e.getX()/params.getPreviewSize().height*2000);
-                Rect areaRect = new Rect(new Rect(rateWidth-10,rateHeight-10,rateWidth+10,rateHeight+10));
-                if(areaRect.left <= -1000)
-                {
-                    areaRect.left = -999;
-                }
-                if(areaRect.top <= -1000)
-                {
-                    areaRect.top = -999;
-                }
-                if(areaRect.right >= 1000)
-                {
-                    areaRect.right = 999;
-                }
-                if(areaRect.bottom >= 1000)
-                {
-                    areaRect.bottom = 999;
-                }
-                Log.i(TAG, "previewSize:" + areaRect.left + ":" + areaRect.top + ":" + areaRect.right + ":" + areaRect.bottom);
+//                Camera.Parameters params = camera.getParameters();
+//                List<Camera.Area> focusArea = new ArrayList<Camera.Area>();
+//                int rateWidth = -1000 + (int) (e.getY() / params.getPreviewSize().width * 2000);
+//                int rateHeight = -1000 + (int) (e.getX() / params.getPreviewSize().height * 2000);
+//                Rect areaRect = new Rect(new Rect(rateWidth - 10, rateHeight - 10, rateWidth + 10, rateHeight + 10));
+//                if (areaRect.left <= -1000) {
+//                    areaRect.left = -999;
+//                }
+//                if (areaRect.top <= -1000) {
+//                    areaRect.top = -999;
+//                }
+//                if (areaRect.right >= 1000) {
+//                    areaRect.right = 999;
+//                }
+//                if (areaRect.bottom >= 1000) {
+//                    areaRect.bottom = 999;
+//                }
+//                Log.i(TAG, "previewSize:" + areaRect.left + ":" + areaRect.top + ":" + areaRect.right + ":" + areaRect.bottom);
 
-                focusArea.add(new Camera.Area(areaRect, 200));
-                params.setFocusAreas(focusArea);
-                camera.setParameters(params);
+//                focusArea.add(new Camera.Area(areaRect, 200));
+//                params.setFocusAreas(focusArea);
+//                camera.setParameters(params);
 
                 camera.autoFocus(new Camera.AutoFocusCallback() {
                     @Override
                     public void onAutoFocus(boolean success, Camera camera) {
                     }
                 });
-
 
                 Intent intent = new Intent();
                 intent.setAction(AnimationView.ACTION_FOCUS);
@@ -221,12 +217,9 @@ public class PhotoSuerfaceView extends SurfaceView implements SurfaceHolder.Call
                 bundle.putParcelable("point", new PointF(e.getX(), e.getY()));
                 intent.putExtra("data", bundle);
 
-                if (showFocus)
-                {
+                if (showFocus) {
                     context.sendBroadcast(intent);
-                }
-                else
-                {
+                } else {
                     context.sendBroadcast(new Intent(AnimationView.ACTION_SCALE_OFF));
                 }
 

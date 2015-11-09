@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -17,13 +16,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 public class TakePhotoActivity extends AppCompatActivity {
-
-    File ef = Environment.getExternalStorageDirectory();
 
     EditText hourEdit, minuteEdit, secondEdit;
     TextView time_text;
@@ -152,7 +148,6 @@ public class TakePhotoActivity extends AppCompatActivity {
                 }
                 getTime();
             }
-
         }
     }
 

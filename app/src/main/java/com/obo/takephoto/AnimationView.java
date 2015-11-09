@@ -17,7 +17,7 @@ import android.view.View;
  * Created by obo on 15/11/8.
  */
 public class AnimationView extends View {
-    private final  String TAG = AnimationView.class.getCanonicalName();
+    private final String TAG = AnimationView.class.getCanonicalName();
     Context context;
 
     public final static String ACTION_FOCUS = "action.focus";
@@ -52,68 +52,56 @@ public class AnimationView extends View {
 
             String action = intent.getAction();
             //聚焦
-            if (action.equals(ACTION_FOCUS)){
+            if (action.equals(ACTION_FOCUS)) {
                 Bundle bundle = intent.getBundleExtra("data");
                 focusPoint = (PointF) bundle.get("point");
-                if (focusPoint != null)
-                {
-                    if (!showFocusPoint)
-                    {
+                if (focusPoint != null) {
+                    if (!showFocusPoint) {
                         new FocusThread().start();
                     }
                 }
-            }
-            else if(action.equals(ACTION_SCALE_ON)) {
+            } else if (action.equals(ACTION_SCALE_ON)) {
                 showScale = true;
-                if (centerPoint == null)
-                {
-                    centerPoint = new PointF(getWidth()/2,getHeight()/2);
+                if (centerPoint == null) {
+                    centerPoint = new PointF(getWidth() / 2, getHeight() / 2);
                 }
                 postInvalidate();
-            }
-            else if (action.equals(ACTION_SCALE_OFF)){
+            } else if (action.equals(ACTION_SCALE_OFF)) {
                 showScale = false;
                 postInvalidate();
             }
-
         }
     };
 
     @Override
-    public void onDraw(Canvas canvas){
+    public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (showFocusPoint)
-        {
-            drawRect(canvas,focusPoint,Color.WHITE,focusWidth);
+        if (showFocusPoint) {
+            drawRect(canvas, focusPoint, Color.WHITE, focusWidth);
         }
-        if (showScale)
-        {
-            drawRect(canvas,centerPoint,Color.GREEN,130);
+        if (showScale) {
+            drawRect(canvas, centerPoint, Color.GREEN, 130);
         }
     }
 
-
-    void drawRect(Canvas canvas,PointF pointCenter,int color,int width)
-    {
+    void drawRect(Canvas canvas, PointF pointCenter, int color, int width) {
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(color);
         paint.setStrokeWidth(3);
         canvas.drawRoundRect(new RectF(pointCenter.x - width, pointCenter.y - width, pointCenter.x + width, pointCenter.y + width), 4, 4, paint);
         canvas.drawLine(pointCenter.x - 30, pointCenter.y, pointCenter.x + 30, pointCenter.y, paint);
-        canvas.drawLine(pointCenter.x,pointCenter.y-30,pointCenter.x,pointCenter.y+30,paint);
+        canvas.drawLine(pointCenter.x, pointCenter.y - 30, pointCenter.x, pointCenter.y + 30, paint);
     }
 
-
-    class FocusThread extends Thread{
+    class FocusThread extends Thread {
 
         @Override
-        public void run(){
+        public void run() {
             focusWidth = 100;
             showFocusPoint = true;
-            while (focusWidth >50)
-            {
-                focusWidth -- ;
+            while (focusWidth > 50) {
+                focusWidth--;
                 postInvalidate();
                 try {
                     sleep(5);
@@ -129,7 +117,7 @@ public class AnimationView extends View {
 
 
     @Override
-    public void finalize(){
+    public void finalize() {
         context.unregisterReceiver(broadcastReceiver);
     }
 

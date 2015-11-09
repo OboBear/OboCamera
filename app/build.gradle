@@ -6,10 +6,10 @@ android {
 
     defaultConfig {
         applicationId "com.obo.takephoto"
-        minSdkVersion 14
-        targetSdkVersion 23
+        minSdkVersion 12
+        targetSdkVersion 14
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.1"
     }
     buildTypes {
         release {
